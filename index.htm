@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>肉九的飼養小幫手</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f4f9f4;
+            color: #333;
+            margin: 0;
+            padding: 20px;
+        }
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+            background-color: #ffffff;
+            padding: 20px;
+            border-radius: 15px;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+            border-top: 5px solid #6b8e23;
+        }
+        h1 {
+            text-align: center;
+            color: #6b8e23;
+        }
+        .section {
+            background-color: #eaf2e3;
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+        }
+        .section h2 {
+            margin-top: 0;
+            font-size: 18px;
+            color: #4a5d23;
+            border-bottom: 2px solid #6b8e23;
+            padding-bottom: 5px;
+        }
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+        input[type="date"], input[type="number"] {
+            width: 100%;
+            padding: 8px;
+            margin-bottom: 10px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            box-sizing: border-box;
+        }
+        .checkbox-group {
+            display: flex;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+        .checkbox-group input {
+            margin-right: 10px;
+            transform: scale(1.2);
+        }
+        button {
+            width: 100%;
+            padding: 10px;
+            background-color: #6b8e23;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            font-size: 16px;
+            cursor: pointer;
+            transition: 0.3s;
+        }
+        button:hover {
+            background-color: #55711b;
+        }
+        #result, #recordList {
+            margin-top: 10px;
+            font-weight: bold;
+            color: #d9534f;
+        }
+        .log-item {
+            background: #fff;
+            padding: 10px;
+            border-left: 4px solid #6b8e23;
+            margin-bottom: 10px;
+            border-radius: 4px;
+            font-size: 14px;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h1>🐍 肉九的專屬飼養小幫手</h1>
+
+    <!-- 區塊 1：餵食倒數 -->
+    <div class="section">
+        <h2>🐭 粉紅鼠餵食追蹤</h2>
+        <label for="lastFeedDate">最後一次餵食日期：</label>
+        <input type="date" id="lastFeedDate">
+        <button onclick="calculateFeed()">計算經過天數</button>
+        <p id="result">請選擇日期進行計算...</p>
+    </div>
+
+    <!-- 區塊 2：溫度紀錄與換算 -->
+    <div class="section">
+        <h2>🌡️ PVC爬蟲箱溫度換算</h2>
+        <label>熱區溫度 (℃)：</label>
+        <input type="number" id="hotTemp" placeholder="輸入攝氏溫度">
+        <label>冷區溫度 (℃)：</label>
+        <input type="number" id="coldTemp" placeholder="輸入攝氏溫度">
+        <button onclick="convertTemp()">換算華氏(℉)並顯示</button>
+        <p id="tempResult"></p>
+    </div>
+
+    <!-- 區塊 3：成長與環境紀錄 -->
+    <div class="section">
+        <h2>📏 日常與環境日誌</h2>
+        <div class="checkbox-group">
+            <input type="checkbox" id="beddingCheck">
+            <label for="beddingCheck">已更換白楊木屑</label>
+        </div>
+        <div class="checkbox-group">
+            <input type="checkbox" id="shedCheck">
+            <label for="shedCheck">今日有脫皮</label>
+        </div>
+        <label>目前體重 (克)：</label>
+        <input type="number" id="weight" placeholder="輸入體重">
+        <button onclick="saveLog()">💾 儲存今日紀錄</button>
+    </div>
+
+    <!-- 區塊 4：歷史紀錄 -->
+    <div class="section">
+        <h2>📋 歷史紀錄區</h2>
+        <div id="recordList">無紀錄。</div>
+        <button style="background-color: #d9534f; margin-top:10px;" onclick="clearLogs()">清除所有紀錄</button>
+    </div>
+</div>
+
+<script>
+    // 餵食天數計算
+    function calculateFeed() {
+        const feedDate = document.getElementById('lastFeedDate').value;
+        if(!feedDate) {
+            document.getElementById('result').innerText = "⚠️ 請先選擇日期！";
+            return;
+        }
+        const today = new Date();
+        const past = new Date(feedDate);
+        const diffTime = Math.abs(today - past);
+        const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24)) - 1; 
+        document.getElementById('result').innerText = `距今已經過 ${diffDays} 天！請注意肉九的消化狀況。`;
+    }
+
+    // 溫度換算
+    function convertTemp() {
+        const hot = document.getElementById('hotTemp').value;
+        const cold = document.getElementById('coldTemp').value;
+        if(!hot && !cold) {
+            document.getElementById('tempResult').innerText = "⚠️ 請輸入溫度！";
+            return;
+        }
+        let resultTxt = "";
+        if(hot) resultTxt += `熱區: ${hot}℃ = ${(hot * 9/5 + 32).toFixed(1)}℉ | `;
+        if(cold) resultTxt += `冷區: ${cold}℃ = ${(cold * 9/5 + 32).toFixed(1)}℉`;
+        document.getElementById('tempResult').innerText = resultTxt;
+    }
+
+    // 儲存紀錄到 LocalStorage
+    function saveLog() {
+        const date = new Date().toLocaleDateString();
+        const bedding = document.getElementById('beddingCheck').checked ? "✔️" : "❌";
+        const shed = document.getElementById('shedCheck').checked ? "✔️" : "❌";
+        const weight = document.getElementById('weight').value || "未測量";
+        
+        const logText = `[${date}] 換木屑:${bedding} | 脫皮:${shed} | 體重:${weight}g`;
+        
+        let logs = JSON.parse(localStorage.getItem('snakeLogs')) || [];
+        logs.unshift(logText); // 加在最前面
+        localStorage.setItem('snakeLogs', JSON.stringify(logs));
+        
+        alert("紀錄已儲存！");
+        loadLogs();
+    }
+
+    // 讀取歷史紀錄
+    function loadLogs() {
+        const logs = JSON.parse(localStorage.getItem('snakeLogs')) || [];
+        const recordList = document.getElementById('recordList');
+        if(logs.length === 0) {
+            recordList.innerHTML = "目前尚無紀錄。";
+            return;
+        }
+        recordList.innerHTML = "";
+        logs.forEach(log => {
+            let div = document.createElement('div');
+            div.className = "log-item";
+            div.innerText = log;
+            recordList.appendChild(div);
+        });
+    }
+
+    // 清除紀錄
+    function clearLogs() {
+        if(confirm("確定要刪除所有紀錄嗎？")) {
+            localStorage.removeItem('snakeLogs');
+            loadLogs();
+        }
+    }
+
+    // 網頁載入時自動讀取紀錄
+    window.onload = loadLogs;
+</script>
+
+</body>
+</html>
